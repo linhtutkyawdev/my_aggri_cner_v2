@@ -57,6 +57,19 @@ def handle_split(args):
     except subprocess.CalledProcessError as e:
         sys.exit(e.returncode)
 
+def handle_visualize_tags(args):
+    cmd = [sys.executable, "scripts/visualize_tags.py", "-i", args.input]
+    if args.exclude_o:
+        cmd.append("--exclude-o")
+    if args.width:
+        cmd.extend(["--width", str(args.width)])
+    if args.csv:
+        cmd.extend(["--csv", args.csv])
+    try:
+        subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        sys.exit(e.returncode)
+
 def main():
     parser = argparse.ArgumentParser(
         description="Burmese Agri CNER Unified Dataset & Embeddings CLI Tool",
@@ -74,6 +87,9 @@ Examples:
 
   # 4. Build fastText embeddings using pyidaungsu tokenizer:
   python3 cli.py build_embeddings --input-dir data/raw_emb --mode word --out-dir embeddings
+
+  # 5. Visualize tag distributions inside a formatted file or directory of files:
+  python3 cli.py visualize_tags -i data/1_270_351_500.txt --exclude-o
 """
     )
     
@@ -117,6 +133,13 @@ Examples:
     p_split.add_argument("folds", type=int, help="Number of folds, e.g., 5")
     p_split.add_argument("-i", "--input", required=True, help="Path to input CoNLL file or folder")
     p_split.add_argument("-o", "--output", help="Path to output directory")
+
+    # 6. visualize_tags
+    p_vis = subparsers.add_parser("visualize_tags", help="Visualize entity tag distribution of formatted text files")
+    p_vis.add_argument("-i", "--input", required=True, help="Path to input formatted text file or directory")
+    p_vis.add_argument("--exclude-o", action="store_true", help="Exclude 'O' (Outside) tag from charts")
+    p_vis.add_argument("--width", type=int, default=40, help="Bar chart visual width")
+    p_vis.add_argument("--csv", help="Path to export the tag distribution as a CSV file")
     
     args = parser.parse_args()
     
@@ -130,6 +153,8 @@ Examples:
         handle_build_embeddings(args)
     elif args.command == "split":
         handle_split(args)
+    elif args.command == "visualize_tags":
+        handle_visualize_tags(args)
 
 if __name__ == '__main__':
     main()
