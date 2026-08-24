@@ -3,3 +3,12 @@ dataset
 dataset_split
 embeddings
 data.zip
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
