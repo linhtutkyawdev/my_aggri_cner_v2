@@ -70,6 +70,17 @@ def handle_visualize_tags(args):
     except subprocess.CalledProcessError as e:
         sys.exit(e.returncode)
 
+def handle_shuffle_distribute(args):
+    cmd = [sys.executable, "scripts/shuffle_distribute.py", "-i", args.input]
+    if args.output:
+        cmd.extend(["-o", args.output])
+    if args.seed is not None:
+        cmd.extend(["--seed", str(args.seed)])
+    try:
+        subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        sys.exit(e.returncode)
+
 def main():
     parser = argparse.ArgumentParser(
         description="Burmese Agri CNER Unified Dataset & Embeddings CLI Tool",
@@ -90,6 +101,9 @@ Examples:
 
   # 5. Visualize tag distributions inside a formatted file or directory of files:
   python3 cli.py visualize_tags -i data/1_270_351_500.txt --exclude-o
+
+  # 6. Shuffle the first 1/3 of a file and distribute uniformly into the remaining 2/3:
+  python3 cli.py shuffle_distribute -i data/1_270_351_500.txt -o data/1_270_351_500_shuffled.txt --seed 42
 """
     )
     
@@ -141,6 +155,12 @@ Examples:
     p_vis.add_argument("--width", type=int, default=40, help="Bar chart visual width")
     p_vis.add_argument("--csv", help="Path to export the tag distribution as a CSV file")
     
+    # 7. shuffle_distribute
+    p_shuf = subparsers.add_parser("shuffle_distribute", help="Shuffle the first 1/3 of a text file and distribute uniformly among the remaining 2/3")
+    p_shuf.add_argument("-i", "--input", required=True, help="Path to input text or CoNLL file")
+    p_shuf.add_argument("-o", "--output", help="Path to output file (optional)")
+    p_shuf.add_argument("--seed", type=int, help="Optional random seed for reproducible shuffling")
+    
     args = parser.parse_args()
     
     if args.command == "conll_to_formatted":
@@ -155,6 +175,8 @@ Examples:
         handle_split(args)
     elif args.command == "visualize_tags":
         handle_visualize_tags(args)
+    elif args.command == "shuffle_distribute":
+        handle_shuffle_distribute(args)
 
 if __name__ == '__main__':
     main()
