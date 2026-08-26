@@ -76,6 +76,8 @@ def handle_shuffle_distribute(args):
         cmd.extend(["-o", args.output])
     if args.seed is not None:
         cmd.extend(["--seed", str(args.seed)])
+    if args.global_shuffle:
+        cmd.append("--global-shuffle")
     try:
         subprocess.run(cmd, check=True)
     except subprocess.CalledProcessError as e:
@@ -160,6 +162,7 @@ Examples:
     p_shuf.add_argument("-i", "--input", required=True, help="Path to input text or CoNLL file")
     p_shuf.add_argument("-o", "--output", help="Path to output file (optional)")
     p_shuf.add_argument("--seed", type=int, help="Optional random seed for reproducible shuffling")
+    p_shuf.add_argument("--global-shuffle", action="store_true", help="Perform a global shuffle on the entire file instead of 1/3-2/3 uniform distribution")
     
     args = parser.parse_args()
     
