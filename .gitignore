@@ -1,8 +1,14 @@
 data
+data_20k
+data_30k
 dataset
+dataset_20k
+dataset_30k
 dataset_split
 embeddings
 data.zip
+data_20k.zip
+data_30k.zip
 
 # Python cache files
 __pycache__/
