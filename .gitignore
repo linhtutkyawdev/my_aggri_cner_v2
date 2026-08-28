@@ -9,6 +9,7 @@ embeddings
 data.zip
 data_20k.zip
 data_30k.zip
+processed.zip
 
 # Python cache files
 __pycache__/
