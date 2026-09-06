@@ -354,6 +354,11 @@ def units_for(text: str, unit: str) -> list[str]:
         return pyidaungsu_units(text, form="word")
     if unit == "space":
         return text.split()
+    if unit == "mt5":
+        from transformers import AutoTokenizer
+        if not hasattr(units_for, "mt5_tokenizer"):
+            units_for.mt5_tokenizer = AutoTokenizer.from_pretrained("google/mt5-base")
+        return units_for.mt5_tokenizer.tokenize(text)
     raise ValueError(f"Unsupported unit: {unit}")
 
 
@@ -485,12 +490,14 @@ def build_parser() -> argparse.ArgumentParser:
             "syllable",
             "char",
             "space",
+            "mt5",
         ),
         default="segment",
         help=(
             "BIO unit. Use pyidaungsu-word for Burmese word tokenization, "
-            "pyidaungsu-syllable for pyidaungsu syllable tokenization, or "
-            "syllable for the no-dependency heuristic fallback."
+            "pyidaungsu-syllable for pyidaungsu syllable tokenization, "
+            "syllable for the no-dependency heuristic fallback, or "
+            "mt5 for Google mT5 default SentencePiece subword tokenization."
         ),
     )
     parser.add_argument(
@@ -521,7 +528,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--all",
         action="store_true",
-        help="Generate all 4 standard CoNLL files (bio_word, bio_syllable, bioes_word, bioes_syllable) and save them in the directory specified by --output (or a default directory)."
+        help="Generate all standard CoNLL files (bio_word, bio_syllable, bioes_word, bioes_syllable, bio_mt5, bioes_mt5) and save them in the directory specified by --output (or a default directory)."
     )
     return parser
 
@@ -550,6 +557,8 @@ def main() -> int:
             ("bio_syllable", "pyidaungsu-syllable", False),
             ("bioes_word", "pyidaungsu-word", True),
             ("bioes_syllable", "pyidaungsu-syllable", True),
+            ("bio_mt5", "mt5", False),
+            ("bioes_mt5", "mt5", True),
         ]
         
         for name, unit, bioes in configs:
